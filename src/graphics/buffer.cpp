@@ -2,22 +2,26 @@
 #include "OpenGL/OpenGLBuffer.h"
 #include <cstdint>
 
-
-static uint32_t GV::ShaderDataTypeSyze(ShaderDataType type)
-  {
-    switch (type) 
-    { 
-      case ShaderDataType::Float:  return 4;
-      case ShaderDataType::Float2: return 4 * 2;
-      case ShaderDataType::Float3: return 4 * 3; 
-    }
-    return 0;
+namespace GV
+{
+  static uint32_t ShaderDataTypeSize(ShaderDataType type)
+    {
+      switch (type) 
+      { 
+	case ShaderDataType::Float:  return 4;
+	case ShaderDataType::Float2: return 4 * 2;
+	case ShaderDataType::Float3: return 4 * 3; 
+	case ShaderDataType::Mat4: return 4 * 4 * 4; 
+	default: throw std::invalid_argument("Unknown ShaderDataType");
+      }
+      return 0;
+  }
 }
 
 ////////////////////////// BufferElement ////////////////////////// 
 
-GV::BufferElement::BufferElement(GV::ShaderDataType type_ ,const std::string name_, bool normalized_)
-  : name(name_), type(type_), size(GV::ShaderDataTypeSyze(type_)), offset(0), normalized(normalized_) {}
+GV::BufferElement::BufferElement(GV::ShaderDataType type_ ,const std::string name_, bool instanced_, bool normalized_)
+  : name(name_), type(type_), size(GV::ShaderDataTypeSize(type_)), offset(0), instanced(instanced_), normalized(normalized_) {}
 
 uint32_t GV::BufferElement::getComponentCount() const
 {
@@ -26,6 +30,8 @@ uint32_t GV::BufferElement::getComponentCount() const
     case ShaderDataType::Float:   return 1;
     case ShaderDataType::Float2:  return 2;
     case ShaderDataType::Float3:  return 3;
+    case ShaderDataType::Mat4:    return 4; // max amount of data per vertex attribute is equal to vec4
+    default: throw std::invalid_argument("Unknown ShaderDataType");
   }
   return 0;
 }
@@ -50,14 +56,15 @@ void GV::BufferLayout::calculateOffsetsAndStride()
 
 ////////////////////////// VertexBuffer ////////////////////////// 
 
-std::unique_ptr<GV::VertexBuffer> GV::VertexBuffer::create(GV::API api, float* vertices, int size)
+std::unique_ptr<GV::VertexBuffer> GV::VertexBuffer::create(GV::API api, void* vertices, int size, GV::BufferTypeDraw bufferTypeDraw)
 {
   switch (api) 
   {
     case GV::API::OPENGL:
-      return std::make_unique<GV::OpenGLVertexBuffer>(vertices, size);
+      return std::make_unique<GV::OpenGLVertexBuffer>(vertices, size, bufferTypeDraw);
     case GV::API::NONE:
       return nullptr;
+    return nullptr;
   
   };
 }
@@ -72,6 +79,21 @@ std::unique_ptr<GV::IndexBuffer> GV::IndexBuffer::create(GV::API api, uint32_t* 
       return std::make_unique<GV::OpenGLIndexBuffer>(indices, count);
     case GV::API::NONE:
       return nullptr;
+    return nullptr;
   
+  };
+}
+
+////////////////////////// UniformBuffer //////////////////////////
+
+std::unique_ptr<GV::UniformBuffer> GV::UniformBuffer::create(GV::API api, int size, uint32_t bindingPoint)
+{
+  switch (api) 
+  {
+    case GV::API::OPENGL:
+      return std::make_unique<GV::OpenGLUniformBuffer>(size, bindingPoint);
+    case GV::API::NONE:
+      return nullptr;
+    return nullptr; 
   };
 }

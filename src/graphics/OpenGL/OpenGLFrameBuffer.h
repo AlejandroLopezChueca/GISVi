@@ -11,13 +11,15 @@ namespace GV
       OpenGLFrameBuffer(const GV::FrameBufferSpecifications& specs);
       ~OpenGLFrameBuffer();
 
-      void resize();
+      void create();
 
       void bind() override;
       void bindTexture() override;
       void unbind() override;
+      
+      void resize(uint32_t width, uint32_t height) override;
 
-      uint32_t getTextureColorID() const override {return m_ColorAttachment;}
+      uint32_t getColorAttachmentID() const override {return m_ColorAttachment;}
       const FrameBufferSpecifications& getSpecifications() const override {return m_Specifications;}
 
 

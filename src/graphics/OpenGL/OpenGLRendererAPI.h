@@ -10,12 +10,13 @@ namespace GV
   class OpenGLRendererAPI: public RendererAPI
   {
     public:
-      OpenGLRendererAPI(uint32_t indices[4]);
+      //OpenGLRendererAPI();
 
       void setClearColor(const glm::vec4& color) override;
       void clear() override;
 
-      void drawElements(const GV::VertexArray& vertexArray, size_t count) override;
+      void drawElements(size_t indexCount) const override;
+      void drawInstancedElements(size_t indexCount, uint32_t instaceCount) const override;
       void drawPoints(const GV::VertexArray& vertexArray, size_t count) override;
 
     private:

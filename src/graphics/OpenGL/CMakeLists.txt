@@ -7,6 +7,7 @@ target_sources(OpenGL_graphics
   ${CMAKE_CURRENT_LIST_DIR}/OpenGLShader.cpp
   ${CMAKE_CURRENT_LIST_DIR}/OpenGLTexture.cpp
   ${CMAKE_CURRENT_LIST_DIR}/OpenGLFrameBuffer.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/OpenGLUtils.cpp
   PUBLIC
   ${CMAKE_CURRENT_LIST_DIR}/OpenGLRendererAPI.h
   ${CMAKE_CURRENT_LIST_DIR}/OpenGLWindow.h
@@ -14,14 +15,19 @@ target_sources(OpenGL_graphics
   ${CMAKE_CURRENT_LIST_DIR}/OpenGLVertexArray.h
   ${CMAKE_CURRENT_LIST_DIR}/OpenGLShader.h
   ${CMAKE_CURRENT_LIST_DIR}/OpenGLTexture.h
-  ${CMAKE_CURRENT_LIST_DIR}/OpenGLFrameBuffer.h)
+  ${CMAKE_CURRENT_LIST_DIR}/OpenGLFrameBuffer.h
+  ${CMAKE_CURRENT_LIST_DIR}/OpenGLUtils.h)
 
   target_include_directories(OpenGL_graphics
     PUBLIC 
       ${CMAKE_CURRENT_LIST_DIR}
+      ${CMAKE_SOURCE_DIR}/dependencies/imgui
       ${CMAKE_SOURCE_DIR}/dependencies/glad/include
       ${CMAKE_SOURCE_DIR}/dependencies/glfw_3_3_8/include
       ${CMAKE_SOURCE_DIR}/dependencies/glm
       #${CMAKE_SOURCE_DIR}/dependencies/msdf-atlas-gen/msdfgen
       #${CMAKE_SOURCE_DIR}/dependencies/msdf-atlas-gen/msdf-atlas-gen
+      ${CMAKE_SOURCE_DIR}/dependencies/entt/include
+      ${CMAKE_SOURCE_DIR}/dependencies/stb
+      ${CMAKE_SOURCE_DIR}/dependencies/ImGuizmo
       ${CMAKE_SOURCE_DIR}/src)

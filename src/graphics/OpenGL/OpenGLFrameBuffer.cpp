@@ -1,15 +1,18 @@
 #include <cstdint>
 #include <glad/glad.h>
+#include <iostream>
 #include <stdexcept>
 #include <vector>
 
 #include "OpenGLFrameBuffer.h"
 #include "graphics/frameBuffer.h"
 
+static const uint32_t s_MaxFramebufferSize = 8192;
+
 GV::OpenGLFrameBuffer::OpenGLFrameBuffer(const GV::FrameBufferSpecifications& specs)
   : m_Specifications(specs)
 {
-  resize();
+  create();
 }
 
 GV::OpenGLFrameBuffer::~OpenGLFrameBuffer()
@@ -18,7 +21,7 @@ GV::OpenGLFrameBuffer::~OpenGLFrameBuffer()
   glDeleteTextures(1, &m_ColorAttachment);
 }
 
-void GV::OpenGLFrameBuffer::resize()
+void GV::OpenGLFrameBuffer::create()
 {
   if (m_RendererID)
   {
@@ -35,8 +38,7 @@ void GV::OpenGLFrameBuffer::resize()
   glCreateTextures(GL_TEXTURE_2D, 1, &m_ColorAttachment);
   glBindTexture(GL_TEXTURE_2D, m_ColorAttachment);
 
-  std::vector<uint8_t> da(m_Specifications.width * m_Specifications.height *4, 170);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_Specifications.width, m_Specifications.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (void*)da.data());
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, m_Specifications.width, m_Specifications.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
   //glTexStorage2D(GL_TEXTURE_2D, 1,GL_RGBA8, m_Specifications.width, m_Specifications.height);
   //glBindImageTexture(1, m_ColorAttachment, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA16F);
 
@@ -45,16 +47,12 @@ void GV::OpenGLFrameBuffer::resize()
   
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_ColorAttachment, 0);
  
-  //depthBuffer
-  if (m_Specifications.is3D)
-  {
-    glCreateTextures(GL_TEXTURE_2D, 1, &m_DepthAttachment);
-    glBindTexture(GL_TEXTURE_2D, m_DepthAttachment);
-
-    glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH24_STENCIL8, m_Specifications.width, m_Specifications.height);
+  // depthBuffer 
+  glCreateTextures(GL_TEXTURE_2D, 1, &m_DepthAttachment);
+  glBindTexture(GL_TEXTURE_2D, m_DepthAttachment);
+  glTexStorage2D(GL_TEXTURE_2D, 1, GL_DEPTH24_STENCIL8, m_Specifications.width, m_Specifications.height);
     //glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, m_Specifications.width, m_Specifications.height, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, nullptr);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_DepthAttachment, 0);
-  }
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_DepthAttachment, 0); 
 
   if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
   {
@@ -68,7 +66,7 @@ void GV::OpenGLFrameBuffer::resize()
 void GV::OpenGLFrameBuffer::bind()
 {
   glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
-  //glViewport(0, 0, m_Specifications.width, m_Specifications.height);
+  glViewport(0, 0, m_Specifications.width, m_Specifications.height);
 }
 
 void GV::OpenGLFrameBuffer::bindTexture()
@@ -83,3 +81,17 @@ void GV::OpenGLFrameBuffer::unbind()
 {
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
+
+void GV::OpenGLFrameBuffer::resize(uint32_t width, uint32_t height)
+{
+  if (width == 0 || height == 0 || width > s_MaxFramebufferSize || height > s_MaxFramebufferSize)
+  {
+    std::cout << "Attempted to resize framebuffer to " << width << " " << height <<"\n";
+    return;
+  }
+  m_Specifications.width = width;
+  m_Specifications.height = height;
+  create();
+
+}
+

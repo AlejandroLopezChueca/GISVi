@@ -10,12 +10,16 @@
 
 namespace GV
 {
-  enum class ShaderDataType
+  enum class BufferTypeDraw
   {
-    None = 0, Float, Float2, Float3
+    Static = 0, Dynamic, Stream
   };
 
-  static uint32_t ShaderDataTypeSyze(ShaderDataType type);
+
+  enum class ShaderDataType
+  {
+    None = 0, Float, Float2, Float3, Mat4
+  };
 
   struct BufferElement
   {
@@ -24,8 +28,9 @@ namespace GV
     uint32_t size;
     uint32_t offset;
     bool normalized;
+    bool instanced;
 
-    BufferElement(ShaderDataType type_ ,const std::string name_, bool normalized_ = false);
+    BufferElement(ShaderDataType type_ ,const std::string name_, bool instanced_ = false, bool normalized_ = false);
 
     uint32_t getComponentCount() const;
   };
@@ -34,7 +39,7 @@ namespace GV
   {
     public:
 
-      BufferLayout() {}
+      BufferLayout() = default;
 
       BufferLayout(const std::initializer_list<BufferElement>& elements_);
       inline uint32_t getStride() const {return stride;}
@@ -60,11 +65,13 @@ namespace GV
 
       virtual void bind() const = 0;
       virtual void unbind() const = 0;
+
+      virtual void updateDynamicData() = 0;
       virtual const BufferLayout& getLayout() const = 0;
       virtual void setLayout(const BufferLayout& layout) = 0;
       virtual unsigned int getVertexBufferID() const = 0;
 
-      static std::unique_ptr<VertexBuffer> create(GV::API api, float* vertices, int size);
+      static std::unique_ptr<VertexBuffer> create(GV::API api, void* vertices, int size, BufferTypeDraw bufferTypeDraw);
   };
 
   class IndexBuffer
@@ -75,6 +82,17 @@ namespace GV
       virtual void unbind() const = 0;
 
       static std::unique_ptr<IndexBuffer> create(GV::API api, uint32_t* indices, uint32_t count);
+  };
+
+  class UniformBuffer
+  {
+    public:
+      virtual ~UniformBuffer() = default;
+      virtual void bind() const = 0;
+      virtual void unbind() const = 0;
+      virtual void setData(const void* data) const = 0;
+
+      static std::unique_ptr<UniformBuffer> create(GV::API api, int size, uint32_t bindingPoint);
   };
 
 }

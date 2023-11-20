@@ -14,7 +14,6 @@ namespace GV
 
     // if we are rendering to screen or not
     bool swapChainTarget = false;
-    bool is3D = false;
 
   };
 
@@ -28,7 +27,9 @@ namespace GV
       virtual void bindTexture() = 0;
       virtual void unbind() = 0;
 
-      virtual uint32_t getTextureColorID() const = 0;
+      virtual void resize(uint32_t width, uint32_t height) = 0;
+
+      virtual uint32_t getColorAttachmentID() const = 0;
 
       virtual const FrameBufferSpecifications& getSpecifications() const = 0;
 

@@ -1,3 +1,15 @@
 [submodule "dependencies/glm"]
 	path = dependencies/glm
 	url = https://github.com/g-truc/glm.git
+[submodule "dependencies/imgui"]
+	path = dependencies/imgui
+	url = https://github.com/ocornut/imgui.git
+[submodule "dependencies/gdal"]
+	path = dependencies/gdal
+	url = https://github.com/OSGeo/gdal.git
+[submodule "dependencies/PROJ"]
+	path = dependencies/PROJ
+	url = https://github.com/OSGeo/PROJ.git
+[submodule "dependencies/ImGuizmo"]
+	path = dependencies/ImGuizmo
+	url = https://github.com/CedricGuillemet/ImGuizmo.git

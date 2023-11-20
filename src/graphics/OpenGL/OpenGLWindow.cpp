@@ -1,8 +1,10 @@
 #include <glad/glad.h>
-#include "GLFW/glfw3.h"
 #include "OpenGLWindow.h"
 
 #include "graphics/renderer.h"
+#include "ui/app.h"
+
+#include "ImGuizmo.h"
 
 #include <iostream>
 
@@ -10,9 +12,10 @@ bool GV::OpenGLWindow::s_GLFWInitialized = false;
 
 GV::PerspectiveCameraController* GV::OpenGLWindow::s_cameraController = nullptr;
 
-GV::OpenGLWindow::OpenGLWindow(GV::PerspectiveCameraController* cameraController)
+int* GV::OpenGLWindow::s_GizmoOperation = nullptr;
+
+GV::OpenGLWindow::OpenGLWindow()
 {
-  s_cameraController = cameraController;
   if (!s_GLFWInitialized)
   {
     glfwInit();
@@ -36,32 +39,34 @@ GV::OpenGLWindow::OpenGLWindow(GV::PerspectiveCameraController* cameraController
     throw std::runtime_error("Failed to initialize GLAD");
   }
   glViewport(0, 0, m_Width, m_Height);
-  //glfwSetWindowUserPointer(renderWindow, &windowData);
-  setVSync(true); 
+  setVSync(true);
+  glEnable(GL_DEPTH_TEST);
+  //glEnable(GL_BLEND); 
+  //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   // Set GLFW callbacks
   glfwSetFramebufferSizeCallback(m_renderWindow, [](GLFWwindow* window, int width, int height) {glViewport(0, 0, width, height);});
 
   glfwSetWindowCloseCallback(m_renderWindow, [](GLFWwindow* window)
       {
-	//WindowData& windowData = *(WindowData*)glfwGetWindowUserPointer(window);
-	//windowData.isRendering = false;
-	glfwSetWindowShouldClose(window,true);
+	GV::App::close();
       });
 
-  glfwSetMouseButtonCallback(m_renderWindow, [](GLFWwindow* window, int button, int action, int mods)
+  /*glfwSetMouseButtonCallback(m_renderWindow, [](GLFWwindow* window, int button, int action, int mods)
       {
 	if (button == GLFW_MOUSE_BUTTON_MIDDLE && action == GLFW_PRESS) std::cout<<"BUTTON"<<std::endl;
-      });
-
-  glfwSetKeyCallback(m_renderWindow, GV::OpenGLWindow::setKeyCallback);
-  /*glfwSetKeyCallback(m_renderWindow, [](GLFWwindow* window, int key, int scancode, int action, int mods)
-
-      {
-	if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) m_pauseRendering = !m_pauseRendering;
       });*/
 
+  glfwSetKeyCallback(m_renderWindow, GV::OpenGLWindow::setKeyCallback);
+
   glfwSetScrollCallback(m_renderWindow, GV::OpenGLWindow::setScrollCallback);
+
+  
+#ifdef DEBUG_MODE
+  glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+  glEnable( GL_DEBUG_OUTPUT );
+  glDebugMessageCallback( debugMessageCallback, 0 );
+#endif
   
 }
 
@@ -87,23 +92,30 @@ void GV::OpenGLWindow::update()
 
 void GV::OpenGLWindow::setKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-  if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) GV::Renderer::s_UpdateRender = !GV::Renderer::s_UpdateRender;
-  else if (GV::Renderer::s_VelocityPointMode && key == GLFW_KEY_KP_ADD && (action == GLFW_PRESS || action == GLFW_REPEAT)) GV::Renderer::s_PointSize += 0.2f;
-  else if (GV::Renderer::s_VelocityPointMode && key == GLFW_KEY_KP_SUBTRACT && (action == GLFW_PRESS || action == GLFW_REPEAT)) GV::Renderer::s_PointSize -= 0.2f;
-  else if (key == GLFW_KEY_1 && action == GLFW_PRESS)
+  if (key == GLFW_KEY_1 && action == GLFW_PRESS)
   {
-    //if (GV::Renderer::s_VelocityPointMode) return;
-    //GV::Renderer::s_VelocityPointMode = true;
-    //GV::Renderer::s_PointSize = 2.0f;
-    //GV::Renderer::s_shaderToUse = GV::Renderer::s_shaderPointsVelocity;
-    //GV::Renderer::s_VelocityTextureMode = false;
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   }
   else if (key == GLFW_KEY_2 && action == GLFW_PRESS)
   {
-    //GV::Renderer::s_VelocityPointMode = false;
-    //GV::Renderer::s_shaderToUse = GV::Renderer::s_shaderTextureVelocity2D;
-    //GV::Renderer::s_TextureToUse = GV::Renderer::s_TextureVelocity;
-    //GV::Renderer::s_VelocityTextureMode = true;
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  }
+  // Gizmos in editor Layer
+  else if (key == GLFW_KEY_Q && action == GLFW_PRESS && !ImGuizmo::IsUsing())
+  {
+    *s_GizmoOperation = -1;
+  }
+  else if (key == GLFW_KEY_W && action == GLFW_PRESS && !ImGuizmo::IsUsing())
+  {
+    *s_GizmoOperation = ImGuizmo::OPERATION::TRANSLATE;
+  }
+  else if (key == GLFW_KEY_E && action == GLFW_PRESS && !ImGuizmo::IsUsing())
+  {
+    *s_GizmoOperation = ImGuizmo::OPERATION::ROTATE;
+  }
+  else if (key == GLFW_KEY_R && action == GLFW_PRESS && !ImGuizmo::IsUsing())
+  {
+    *s_GizmoOperation = ImGuizmo::OPERATION::SCALE;
   }
 }
 
@@ -111,5 +123,10 @@ void GV::OpenGLWindow::setKeyCallback(GLFWwindow* window, int key, int scancode,
 void GV::OpenGLWindow::setScrollCallback(GLFWwindow* window, double xOffset, double yOffset)
 {
   s_cameraController -> onMouseScrolled(xOffset, yOffset);
+}
+
+void GV::OpenGLWindow::debugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
+{
+  if (type == GL_DEBUG_TYPE_ERROR) fprintf( stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n", ( type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "" ), type, severity, message );
 }
 

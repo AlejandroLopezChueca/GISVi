@@ -2,6 +2,7 @@
 #include "OpenGL/OpenGLFrameBuffer.h"
 #include "graphics/API.h"
 
+#include <iostream>
 
 std::unique_ptr<GV::FrameBuffer> GV::FrameBuffer::create(GV::API api, const FrameBufferSpecifications& specs)
 {

@@ -1,11 +1,14 @@
+
+#include "OpenGLShader.h"
+
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 #include <string>
 #include <vector>
 #include <array>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "OpenGLShader.h"
 #include "glm/fwd.hpp"
 
 namespace GV
@@ -196,13 +199,13 @@ void GV::OpenGLShader::compile(const std::unordered_map<GLenum, std::string>& sh
     // We don't need the program anymore.
     glDeleteProgram(program);
     // Don't leak shaders either.
-    for (auto id : glShadersIDs) glDeleteShader(id);
+    for (int i = 0; i < shaderSources.size(); i++) glDeleteShader(glShadersIDs[i]);
     // Use the infoLog as you see fit.
     //terminal -> printf("Shader link failure: %s\n", infoLog.data());
     return;
   }
   // Always detach shaders after a successful link.
-  for (auto id : glShadersIDs) glDetachShader(program, id);
+  for (int i = 0; i < shaderSources.size(); i++) glDetachShader(program, glShadersIDs[i]);
   // set when everthing is okay
   m_RendererID = program;
 }
@@ -214,11 +217,41 @@ void GV::OpenGLShader::setInt(const std::string &name, int value)
   glUniform1i(location, value);
 }
 
+void GV::OpenGLShader::setFloat(const std::string &name, float value)
+{
+  GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+  // value is the slot where the texture is bound
+  glUniform1f(location, value);
+}
+
+void GV::OpenGLShader::setFloat2(const std::string &name, const glm::vec2 &vector) const
+{
+  GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+  glUniform2f(location, vector.x, vector.y);
+}
+
+void GV::OpenGLShader::setFloat3(const std::string &name, const glm::vec3 &vector) const
+{
+  GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+  glUniform3f(location, vector.x, vector.y, vector.z);
+}
+
+void GV::OpenGLShader::setFloat4(const std::string &name, const glm::vec4 &vector) const
+{
+  GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+  glUniform4f(location, vector.x, vector.y, vector.z, vector.w);
+}
+
 void GV::OpenGLShader::setMat4(const std::string& name, const glm::mat4& matrix) const
 {
   GLint location = glGetUniformLocation(m_RendererID, name.c_str());
   // false for column major matrix
   glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
+}
 
+void GV::OpenGLShader::setFloatArray8(const std::string& name, const std::array<glm::vec4, 8>& arrayData) const
+{
+  GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+  glUniform4fv(location, 8, glm::value_ptr(arrayData[0]));
 }
 

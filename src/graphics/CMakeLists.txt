@@ -9,7 +9,12 @@ target_sources(graphics
   ${CMAKE_CURRENT_LIST_DIR}/camera.cpp
   ${CMAKE_CURRENT_LIST_DIR}/cameraController.cpp
   ${CMAKE_CURRENT_LIST_DIR}/texture.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/colorMaps.cpp
   ${CMAKE_CURRENT_LIST_DIR}/frameBuffer.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/layer.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/layerStack.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/graphicsUtils.cpp
+  ${CMAKE_CURRENT_LIST_DIR}/UUID.cpp
   #${CMAKE_CURRENT_LIST_DIR}/font.cpp
   PUBLIC
   ${CMAKE_CURRENT_LIST_DIR}/renderer.h
@@ -23,6 +28,13 @@ target_sources(graphics
   ${CMAKE_CURRENT_LIST_DIR}/texture.h
   ${CMAKE_CURRENT_LIST_DIR}/colorMaps.h
   ${CMAKE_CURRENT_LIST_DIR}/frameBuffer.h
+  ${CMAKE_CURRENT_LIST_DIR}/layer.h
+  ${CMAKE_CURRENT_LIST_DIR}/layerStack.h
+  ${CMAKE_CURRENT_LIST_DIR}/graphicsUtils.h
+  ${CMAKE_CURRENT_LIST_DIR}/mouseCodes.h
+  ${CMAKE_CURRENT_LIST_DIR}/keyCodes.h
+  ${CMAKE_CURRENT_LIST_DIR}/input.h
+  ${CMAKE_CURRENT_LIST_DIR}/UUID.h
   #${CMAKE_CURRENT_LIST_DIR}/font.h
   )
 
@@ -32,7 +44,9 @@ target_sources(graphics
       ${CMAKE_SOURCE_DIR}/dependencies/glad/include
       ${CMAKE_SOURCE_DIR}/dependencies/glfw_3_3_8/include
       ${CMAKE_SOURCE_DIR}/dependencies/glm
+      ${CMAKE_SOURCE_DIR}/dependencies/imgui
       #${CMAKE_SOURCE_DIR}/dependencies/msdf-atlas-gen/msdfgen
       #${CMAKE_SOURCE_DIR}/dependencies/msdf-atlas-gen/msdf-atlas-gen
+      ${CMAKE_SOURCE_DIR}/dependencies/entt/include
       ${CMAKE_SOURCE_DIR}/src)
 

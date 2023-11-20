@@ -14,6 +14,8 @@ std::unique_ptr<GV::Shader> GV::Shader::create(const std::string& filePath, GV::
       return std::make_unique<GV::OpenGLShader>(filePath);
     case GV::API::NONE:
       return nullptr; 
+    default:
+      return nullptr;
   };
 }
 std::unique_ptr<GV::Shader> GV::Shader::create(const std::string& vertexSrc, const std::string& fragmentSrc, GV::API api)
@@ -24,6 +26,8 @@ std::unique_ptr<GV::Shader> GV::Shader::create(const std::string& vertexSrc, con
       return std::make_unique<GV::OpenGLShader>(vertexSrc, fragmentSrc);
     case GV::API::NONE:
       return nullptr; 
+    default:
+      return nullptr;
   };
 }
 

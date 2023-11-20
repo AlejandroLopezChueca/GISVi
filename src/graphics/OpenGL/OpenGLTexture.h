@@ -3,6 +3,7 @@
 #include "glm/ext/vector_float3.hpp"
 #include "graphics/texture.h"
 #include <cstdint>
+#include <filesystem>
 #include <glm/glm.hpp>
 #include <vector>
 #include <glad/glad.h>
@@ -34,6 +35,7 @@ namespace GV
   {
     public:
       OpenGLTexture2D(uint32_t width, uint32_t height, uint32_t channels);
+      OpenGLTexture2D(const std::filesystem::path& path);
       ~OpenGLTexture2D();
 
       uint32_t getWidth() const override {return m_Width;}
@@ -47,6 +49,7 @@ namespace GV
     private:
       uint32_t m_Width;
       uint32_t m_Height;
+      std::filesystem::path m_Path;
       uint32_t m_RendererID;
       GLenum m_InternalFormat;
       GLenum m_DataFormat;

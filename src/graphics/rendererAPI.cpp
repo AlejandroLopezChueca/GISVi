@@ -7,14 +7,16 @@
 // default API
 GV::API GV::RendererAPI::s_API = GV::API::NONE;
 
-std::unique_ptr<GV::RendererAPI> GV::RendererAPI::create(uint32_t indices[4])
+std::unique_ptr<GV::RendererAPI> GV::RendererAPI::create()
 {
   switch (s_API) 
   {
     case GV::API::OPENGL:
-      return std::make_unique<GV::OpenGLRendererAPI>(indices);
+      return std::make_unique<GV::OpenGLRendererAPI>();
     case GV::API::NONE:
-      return nullptr; 
+      return nullptr;
+    default:
+      return nullptr;
   }
 
 }

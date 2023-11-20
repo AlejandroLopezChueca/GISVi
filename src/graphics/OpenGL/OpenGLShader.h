@@ -25,7 +25,12 @@ namespace GV
       void unbind() const override;
       
       void setInt(const std::string& name, int value) override;
+      void setFloat(const std::string& name, float value) override;
+      void setFloat2(const std::string& name, const glm::vec2& vector) const override;
+      void setFloat3(const std::string& name, const glm::vec3& vector) const override;
+      void setFloat4(const std::string& name, const glm::vec4& vector) const override;
       void setMat4(const std::string& name, const glm::mat4& matrix) const override;
+      void setFloatArray8(const std::string& name, const std::array<glm::vec4, 8>& arrayData) const override;
 
     private:
       std::string readFile(const std::string& filePath);
